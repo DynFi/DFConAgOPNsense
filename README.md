@@ -3,8 +3,9 @@ DynFi Manager Connection Agent Plugin for the OPNsense® firewalls.
 
 
 ## What is the DynFi Connection Agent?  
-The Connection Agent (ConAg) is a plugin available for OPNsense® that extends the functionality of your firewall by automating its connection to [DynFi Manager](https://dynfi.com/dynfi-manager). 
-This way your firewalls auto provision themselves with your DynFi Firewall Manager, greatly simplifying the deployment and maintenance of your firewall fleet.  
+The Connection Agent (ConAg) is a plugin available for OPNsense® that extends the functionality of your firewall by automating its connection to [DynFi Manager](https://dynfi.com/dynfi-manager). DynFi Manager is the only central management solution targeted for pfSense-CE and OPNsense firewall devices. 
+
+Thanks to DFConAgOPNsense your firewalls will auto provision themselves to your DynFi Manager, greatly simplifying the deployment and maintenance of your firewall fleet.  
 <br>
 
 ## How does the Connection Agent work?
@@ -27,7 +28,7 @@ This will get your agent installed automatically.
   wget -O - https://dynfi.com/connection-agent/download/opnsense/dfconag-latest-installer.sh | sh  
 ```
 
-![DynFi Connexion Agent on OPNsense](/img/DynFi_Manager/OPNsense_DynFi_connection_agent.png "Install DynFi Connexion Agent on OPNsense")  
+![DynFi Connexion Agent on OPNsense](https://dynfi.com/img/DynFi_Manager/OPNsense_DynFi_connection_agent.png "Install DynFi Connexion Agent on OPNsense")  
 <br>
 
 ## Documentation for DynFi Connection Agent
