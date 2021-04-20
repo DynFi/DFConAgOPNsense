@@ -1,3 +1,7 @@
+# DFConAgOPNsense
+Agent de Connexion DynFi Manager pour les pare-feux (firewalls) OPNsense®.
+<br>
+
 ## Qu'est-ce que l'Agent de Connexion DynFi ?  
 L'Agent de Connexion DynFi est un plugin développé pour les firewalls OPNsense® qui permet d'étendre les fonctionnalités de votre firewall en automatisant sa connexion auprès de notre [gestionnaire de pare-feu DynFi Manager](https://dynfi.com/dynfi-manager/). 
 Grâce à ce Plugin, vos firewalls se provisionnent automatiquement auprès de votre Gestionnaire de Firewalls DynFi, simplifiant grandement le déploiement et la maintenance de votre flotte de pare-feu.  
@@ -10,12 +14,12 @@ Il utilise pour cela le programme [Auto SSH](https://www.freebsd.org/cgi/man.cgi
 Autossh est un outil permettant de s'assurer qu'une session SSH reste ouverte en permanence en la testant et en la relançant si nécessaire. 
 Ceci permet à notre Agent de Connexion de maintenir une session ouverte en permanence avec le Gestionnaire DynFi Manager. 
   
-Le code source du plugin OPNsense® est présenté ici, une version compatible avec [pfSense®-CE est aussi disponible sur GitHub](https://github.com/DynFi/DFConAgPfSense/).
-<br>
+Le code source du plugin OPNsense® est présenté ici, une version compatible avec [pfSense®-CE est aussi disponible sur GitHub](https://github.com/DynFi/DFConAgPfSense/).  
+<br>  
 
 ## Sur DynFi Firewall l'agent est pré-installé
 Le plugin DFConAg est inclus de façon native dans notre distribution de firewall dérivée de OPNsense® : [DynFi Firewall](https://dynfi.com/dynfi-firewall/).  
-<br>
+<br>  
 
 Vous pouvez [télécharger et installer](https://dynfi.com/download/) le pare-feu DynFi Firewall très simplement.  
 <br>  
