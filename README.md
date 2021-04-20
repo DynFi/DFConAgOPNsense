@@ -31,5 +31,5 @@ This will get your agent installed automatically.
 <br>
 
 ## Documentation for DynFi Connection Agent
-You can access the [DynFi Manager Connection Agent documentation here](https://dynfi.com/documentation) 
+You can access the [DynFi Manager Connection Agent documentation here](https://dynfi.com/documentation/) 
   
