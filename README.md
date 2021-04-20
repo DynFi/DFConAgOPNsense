@@ -19,27 +19,6 @@ The [DynFi Firewall](https://dynfi.com/dynfi-firewall/) firewall natively includ
 You can [download and install](https://dynfi.com/download/) the DynFi Firewall very easily.  
 <br>  
 
-## Installing the Connection Agent on pfSense-CE
-It is very easy to install the DynFi Connection Agent on pfSense-CE firewalls by following the instructions below:  
-  
-1. Log into your firewall using the "admin" account. 
-2. Go to the "Diagnostics >> Command Prompt" section.
-3. Copy / paste the line below
-4. Click on "Execute."  
-<br> 
-
-```bash
-  wget -O - https://dynfi.com/connection-agent/download/pfsense/dfconag-latest-installer.sh | sh  
-```  
-  
-<br> 
-
-![Installing DynFi Connexion Agent on pfSense](/img/DynFi_Manager/pfSense_connection_agent.png "Install DynFi Connexion Agent on pfSense-CE") 
-
-Alternatively, it is also possible to run this command directly from an SSH connection on your firewall with the user "admin". 
-Simply copy/paste the above line and run the command.   
-<br> 
-
 ## Install the connection agent on OPNsense:
 Simply copy / paste the line below from a "root" SSH session on your firewall.  
 This will get your agent installed automatically.  
