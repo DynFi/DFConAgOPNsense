@@ -1,0 +1,6 @@
+<menu>
+    <DFConAg VisibleName="DynFi Connection Agent" order="60" cssClass="fa fa-magic __iconspacer">
+        <Control order="10" url="/ui/dfconag" cssClass="fa fa-cogs" />
+        <LogFile VisibleName="Log File" order="90" url="/ui/diagnostics/log/core/dfconag" cssClass="fa fa-eye fa-fw" />
+    </DFConAg>
+</menu>
