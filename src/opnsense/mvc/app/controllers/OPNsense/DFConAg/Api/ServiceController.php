@@ -52,12 +52,55 @@ class ServiceController extends ApiMutableServiceControllerBase
     private $backend = null;
 
 
+    private function getInterfaces() {
+        $intfmap = array();
+        $config = Config::getInstance()->object();
+        if ($config->interfaces->count() > 0) {
+            foreach ($config->interfaces->children() as $key => $node) {
+                if ((string)$node->if == 'lo0')
+                    continue;
+                if (intval((string)$node->enable))
+                    $intfmap[$key] = !empty((string)$node->descr) ? (string)$node->descr : strtoupper($key);
+            }
+        }
+        return $intfmap;
+    }
+
+    private function getInterfacesSelected($settings) {
+        $intfmap = array();
+        foreach ($settings['interfaces'] as $iface => $idata) {
+            if (intval($idata['selected']))
+                $intfmap[] = $iface;
+        }
+        return $intfmap;
+    }
+
+    public function interfacesAction() {
+        $intfmap = $this->getInterfaces();
+        return json_encode($intfmap);
+    }
+
     public function pretestAction() {
         if ($this->request->isPost()) {
             $result = $this->configdRun('dfconag pretest');
 
             if (empty($result))
                 return array("status" => "failed", "message" => "pre test failed");
+
+            $dfconag = new \OPNsense\DFConAg\DFConAg();
+            $settings = $dfconag->getNodes()['settings'];
+            $ifaces = $this->getInterfacesSelected($settings);
+            if (empty($ifaces)) {
+                $intfmap = $this->getInterfaces();
+                $ifaces = implode(',', array_keys($intfmap));
+                $dfconag->setNodes(array(
+                    'settings' => array(
+                        'interfaces' => $ifaces,
+                    )
+                ));
+                $dfconag->serializeToConfig();
+                Config::getInstance()->save(null, false);
+            }
 
             return array("status" => "ok", "message" => $result);
         }
@@ -73,6 +116,7 @@ class ServiceController extends ApiMutableServiceControllerBase
             $dfmHost = trim($this->request->getPost("dfmHost"));
             $dfmSshPort = intval($this->request->getPost("dfmPort"));
             $dfmToken = trim($this->request->getPost("dfmToken"), " \n\r");
+            $interfaces = $this->request->getPost("interfaces");
 
             if (empty($dfmHost))
                 return array("status" => "failed", "message" => "Please provide DynFi Manager host address");
@@ -80,6 +124,9 @@ class ServiceController extends ApiMutableServiceControllerBase
             if (!$dfmSshPort)
                 return array("status" => "failed", "message" => "Please provide DynFi Manager SSH port");
 
+            if (empty($interfaces))
+                return array("status" => "failed", "message" => "Please select at least one interface");                
+                
             if (!$this->checkPrivateKey())
                 return array("status" => "failed", "message" => "SSH private key does not exist");
 
@@ -108,7 +155,8 @@ class ServiceController extends ApiMutableServiceControllerBase
                     $dfconag->setNodes(array(
                         'settings' => array(
                             'enabled' => '1',
-                            'deviceId' => $whoResp['id']
+                            'deviceId' => $whoResp['id'],
+                            'interfaces' => implode(',', $interfaces)
                         )
                     ));
                     $dfconag->serializeToConfig();
@@ -131,6 +179,7 @@ class ServiceController extends ApiMutableServiceControllerBase
                     'dfmSshPort' => $dfmSshPort,
                     'localSshPort' => $settings['localSshPort'],
                     'localDvPort' => $settings['localDvPort'],
+                    'interfaces' => implode(',', $interfaces)
                 )
             ));
             $dfconag->serializeToConfig();
@@ -453,12 +502,16 @@ class ServiceController extends ApiMutableServiceControllerBase
     public function resetAction() {
         if ($this->request->isPost()) {
 
+            $intfmap = $this->getInterfaces();
+            $ifaces = implode(',', array_keys($intfmap));
+        
             $dfconag = new \OPNsense\DFConAg\DFConAg();
             $dfconag->setNodes(array(
                 'settings' => array(
                     'enabled' => '0',
                     'dfmHost' => '',
                     'dfmSshPort' => '',
+                    'interfaces' => $ifaces,
                     'knownHosts' => '',
                     'knownHostsNotHashed' => '',
                     'authorizedUser' => '',

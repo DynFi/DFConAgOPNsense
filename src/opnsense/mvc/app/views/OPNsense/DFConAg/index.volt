@@ -387,19 +387,45 @@ function checkConnectInputs() {
 function connectDevice() {
     $('#btnConnect').html("{{ lang._('Connecting...') }}");
     $('#btnConnect').prop('disabled', true);
+    ajaxGet('/api/dfconag/service/interfaces', {}, function(data, status) {
+        interface_descriptions = data;
+        _connectDevice();
+    });
+}
+
+
+
+var interface_descriptions = {};
+
+
+function _connectDevice() {
     var dfmHost = ((__currentStatus) && ('dfmHost' in __currentStatus)) ? __currentStatus.dfmHost : '';
     var dfmPort = ((__currentStatus) && ('dfmSshPort' in __currentStatus)) ? __currentStatus.dfmSshPort : '';
+    var curIfaces = ((__currentStatus) && ('interfaces' in __currentStatus)) ? __currentStatus.interfaces : null;
+    var ifacesEl = '<select multiple="multiple" class="selectpicker" data-width="334px" data-hint="Type or select interface." data-allownew="false" data-sortable="false" data-live-search="true" id="interfaces">';
+    for (var iface in interface_descriptions) {
+        var iname = interface_descriptions[iface];
+        if ((curIfaces) && (iface in curIfaces) && ('selected' in curIfaces[iface]) && (curIfaces[iface].selected))
+            ifacesEl += '<option value="' + iface + '" selected="selected">' + curIfaces[iface].value + '</option>';
+        else
+            ifacesEl += '<option value="' + iface + '">' + iname + '</option>';
+    }
+    ifacesEl += '</select>';
     BootstrapDialog.show({
-        title: "{{ lang._('Connect to DynFi® Manager') }}",
+        title: "{{ lang._('Connect to DynFi Manager') }}",
         message: '<table class="table table-striped table-condensed"><tbody>' +
             '<tr><td style="width: 15em"><div class="control-label"><b>{{ lang._('Token') }} <i id="tokenmark" style="display: none"></i></b></div></td><td><textarea onchange="decodeToken()" onkeyup="decodeToken()" onmouseup="decodeToken()" id="dfm-token" style="width: 100%; height: 8em"></textarea></td></tr>' +
-            '<tr style="border-top: none"><td colspan="2" style="border-top: none; text-align: justify">{{ lang._('Connection token is a short text which allows smooth connection process between Connection Agent from this firewall and DynFi® Manager. To obtain a token, please ask your DynFi® Manager administrator. Tokens in DynFi® Manager can be generated in settings (top right ⚙️ → Connection Agent).') }}</td></tr>' +
+            '<tr style="border-top: none"><td colspan="2" style="border-top: none; text-align: justify">{{ lang._('Connection token is a short text which allows smooth connection process between Connection Agent from this firewall and DynFi Manager®. To obtain a token, please ask your DynFi Manager® administrator. Tokens in DynFi Manager® can be generated in settings (top right ⚙️ → Connection Agent).') }}</td></tr>' +
             '<tr class="adv-opt-switch"><th colspan="2" style="text-align: center"><b><a href="javascript:;" onclick="showAdvancedOptions()">{{ lang._('Show advanced options') }}</a></b></th></tr>' +
-            '<tr class="adv-opt" style="width: 15em; display: none"><td><div class="control-label"><b>{{ lang._('DynFi® Manager host') }}</b></div></td><td><input onchange="checkConnectInputs()" onkeyup="checkConnectInputs()" onmouseup="checkConnectInputs()" type="text" id="dfm-host" required="true" value="' + dfmHost + '" /></td></tr>' +
-            '<tr class="adv-opt" style="width: 15em; display: none"><td><div class="control-label"><b>{{ lang._('DynFi® Manager SSH port') }}</b></div></td><td><input onchange="checkConnectInputs()" onkeyup="checkConnectInputs()" onmouseup="checkConnectInputs()" type="number" min="1" max="65535" id="dfm-port" required="true" value="' + dfmPort + '" /></td></tr>' +
+            '<tr class="adv-opt" style="width: 15em; display: none"><td><div class="control-label"><b>{{ lang._('DynFi Manager host') }}</b></div></td><td><input onchange="checkConnectInputs()" onkeyup="checkConnectInputs()" onmouseup="checkConnectInputs()" type="text" id="dfm-host" required="true" value="' + dfmHost + '" /></td></tr>' +
+            '<tr class="adv-opt" style="width: 15em; display: none"><td><div class="control-label"><b>{{ lang._('DynFi Manager SSH port') }}</b></div></td><td><input onchange="checkConnectInputs()" onkeyup="checkConnectInputs()" onmouseup="checkConnectInputs()" type="number" min="1" max="65535" id="dfm-port" required="true" value="' + dfmPort + '" /></td></tr>' +
+            '<tr class="adv-opt" style="width: 15em; display: none"><td><div class="control-label"><b>{{ lang._('Enable on interfaces') }}</b></div></td><td>' + ifacesEl + '</td></tr>' +
             '</tbody></table>',
         draggable: true,
         closable: false,
+        onshown: function (d) {
+            $('#interfaces').selectpicker('show');
+        },
         buttons: [{
             label: '{{ lang._('Cancel') }}',
             action: function(dialog) {
@@ -413,17 +439,18 @@ function connectDevice() {
                 var dfmHost = $('#dfm-host').val();
                 var dfmPort = $('#dfm-port').val();
                 var dfmToken = $('#dfm-token').val();
+                var interfaces = $('#interfaces').val();
                 dialog.close();
-                ajaxCall("/api/dfconag/service/connect", { dfmHost: dfmHost, dfmPort: dfmPort, dfmToken: dfmToken }, function(data, status) {
+                ajaxCall("/api/dfconag/service/connect", { dfmHost: dfmHost, dfmPort: dfmPort, dfmToken: dfmToken, interfaces: interfaces }, function(data, status) {
                     var result_status = ((status == "success") && (data['status'].toLowerCase().trim() == "ok"));
                     if (result_status) {
                         var arr = data.message.split(';');
                         if (arr[0] == 'RECONNECTED') {
-                            var msg = "{{ lang._('Successfully reconnected to DynFi® Manager. Assigned device UUID is %s') }}";
+                            var msg = "{{ lang._('Successfully reconnected to DynFi Manager. Assigned device UUID is %s') }}";
                             msg = msg.replace('%s', arr[1]);
                             BootstrapDialog.show({
                                 type: BootstrapDialog.TYPE_SUCCESS,
-                                title: "{{ lang._('Reconnected to DynFi® Manager') }}",
+                                title: "{{ lang._('Reconnected to DynFi Manager') }}",
                                 message: msg,
                                 draggable: true
                             });
@@ -440,20 +467,20 @@ function connectDevice() {
                         if (arr[0] == 'CONNCHECKFAIL') {
                             var msg = "{{ lang._('Connection Agent was unable to contact %s at port %s (%s)') }}" +
                                 "<br /><br />{{ lang._('There can be many reasons why this connection does not work. Please ensure the following:') }}" +
-                                "<br /><br />{{ lang._('* the DynFi® Manager is up and has Connection Agent service enabled') }}" +
-                                "<br />{{ lang._('* the firewall protecting the DynFi® Manager allows incoming connections using port %s') }}" +
+                                "<br /><br />{{ lang._('* the DynFi Manager is up and has Connection Agent service enabled') }}" +
+                                "<br />{{ lang._('* the firewall protecting the DynFi Manager allows incoming connections using port %s') }}" +
                                 "<br />{{ lang._('* this firewall allows outcoming connection to specified host %s and port %s') }}";
                             msg = msg.replace('%s', dfmHost).replace('%s', dfmPort).replace('%s', arr[1]).replace('%s', dfmPort).replace('%s', dfmHost).replace('%s', dfmPort);
                             BootstrapDialog.show({
                                 type: BootstrapDialog.TYPE_WARNING,
-                                title: "{{ lang._('Error connecting to DynFi® Manager') }}",
+                                title: "{{ lang._('Error connecting to DynFi Manager') }}",
                                 message: msg,
                                 draggable: true
                             });
                         } else {
                             BootstrapDialog.show({
                                 type: BootstrapDialog.TYPE_WARNING,
-                                title: "{{ lang._('Error connecting to DynFi® Manager') }}",
+                                title: "{{ lang._('Error connecting to DynFi Manager') }}",
                                 message: data['message'],
                                 draggable: true
                             });
@@ -485,11 +512,18 @@ function checkStatus() {
             });
         }
         if ((__currentStatus) && ('enabled' in __currentStatus) && (__currentStatus.enabled == '1')) {
+            var intnames = [];
+            for (var i in __currentStatus.interfaces) {
+                var iface = __currentStatus.interfaces[i];
+                if (('selected' in iface) && (iface.selected == 1))
+                    intnames.push(iface.value);
+            }
             $('#statustable tbody')
                 .append('<tr class="dfcinf"><td>{{ lang._('Connected to') }}</td><td>' + __currentStatus.dfmHost + ':' + __currentStatus.dfmSshPort + '</td></tr>')
                 .append('<tr class="dfcinf"><td>{{ lang._('Device ID') }}</td><td>' + __currentStatus.deviceId + '</td></tr>')
                 .append('<tr class="dfcinf"><td>{{ lang._('Main tunnel') }}</td><td>' + __currentStatus.mainTunnelPort + ' &rarr; ' + __currentStatus.localSshPort + '</td></tr>')
-                .append('<tr class="dfcinf"><td>{{ lang._('DirectView tunnel') }}</td><td>' + __currentStatus.dvTunnelPort + ' &rarr; ' + __currentStatus.localDvPort + '</td></tr>');
+                .append('<tr class="dfcinf"><td>{{ lang._('DirectView tunnel') }}</td><td>' + __currentStatus.dvTunnelPort + ' &rarr; ' + __currentStatus.localDvPort + '</td></tr>')
+                .append('<tr class="dfcinf"><td>{{ lang._('Interfaces') }}</td><td>' + intnames.join(', ') + '</td></tr>');
             $('#btnDisconnect').show();
             $('#btnDisconnect').unbind('click').click(function() {
                 disconnectDevice();
