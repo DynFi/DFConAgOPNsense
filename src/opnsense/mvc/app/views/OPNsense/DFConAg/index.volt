@@ -564,11 +564,28 @@ function showAdvancedOptions() {
 }
 
 
+function checkForUpdates() {
+    ajaxCall(url="/api/dfconag/service/updates", sendData={}, callback=function(data, status) {      
+        if ((data['status'].toLowerCase().trim() == "ok") && (data['message'].length)) {
+            var msg = "{{ lang._('Version %s of DynFi Connection Agent is available.') }}".replace('%s', data['message'])
+                + " {{ lang._('Visit %s for installation instructions.') }}".replace('%s', '<a href="https://dynfi.com/connection-agent">https://dynfi.com/connection-agent</a>');
+            BootstrapDialog.show({
+                type: BootstrapDialog.TYPE_SUCCESS,
+                title: "{{ lang._('New version available') }}",
+                message: msg,
+                draggable: true
+            });
+        }
+    });
+}
+
+
 $(document).ready(function() {
     $('#btnConnect').click(connectDevice);
     $('#btnDisconnect').click(disconnectDevice);
     $('#btnReset').click(resetAgent);
     runPreTest();
+    checkForUpdates();
 });
 
 </script>

@@ -539,6 +539,22 @@ class ServiceController extends ApiMutableServiceControllerBase
         }
         return array("status" => "failed", "message" => "Only POST requests allowed");
     }
+    
+    
+    public function updatesAction() {
+        if ($this->request->isPost()) {
+            $curr = trim($this->configdRun('dfconag version'));
+            if (empty($curr))
+                return array("status" => "failed", "message" => "Current version check failed");
+            $versionsjson = file_get_contents("https://dynfi.com/versions.json");
+            if (empty($versionsjson))
+                return array("status" => "failed", "message" => "Remote version check failed");
+            $versions = json_decode($versionsjson, true);
+            $latest = $versions['dfconag']['opnsense'];
+            return array("status" => "ok", "message" => ((version_compare($curr, $latest) < 0) ? $latest : ''));
+        }
+        return array("status" => "failed", "message" => "Only POST requests allowed");
+    }
 
 
     private function configdRun($cmd, $asJson = false) {
