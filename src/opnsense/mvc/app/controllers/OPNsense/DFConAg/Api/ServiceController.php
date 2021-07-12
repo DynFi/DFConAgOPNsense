@@ -33,7 +33,11 @@ use \OPNsense\Core\Backend;
 use \OPNsense\Core\Config;
 use \OPNsense\DFConAg\DFConAg;
 
+$errorReporting = error_reporting();
+error_reporting(0);
 require_once('auth.inc');
+error_reporting($errorReporting);
+
 require_once('config.inc');
 require_once('plugins.inc.d/dfconag.inc');
 
@@ -622,8 +626,10 @@ class ServiceController extends ApiMutableServiceControllerBase
                         }
                         $nlines[] = trim($key);
                         $user['authorizedkeys'] = base64_encode(implode("\r\n", $nlines));
-                        local_user_set($user);
-
+                        $errorReporting = error_reporting();
+                        error_reporting(0);
+                        local_user_set($user);           
+                        error_reporting($errorReporting);                        
                         $cnf = Config::getInstance();
                         $cnf->fromArray($config);
                         $cnf->save(null, false);
