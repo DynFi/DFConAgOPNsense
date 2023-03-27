@@ -25,7 +25,7 @@ Simply copy / paste the line below from a "root" SSH session on your firewall.
 This will get your agent installed automatically.  
 
 ```bash
-  wget -O - [https://dynfi.com/connection-agent/download/opnsense/dfconag-latest-installer.sh](https://dynfi.com/files/connection-agent/opnsense/dfconag-latest-installer.sh) | sh  
+  wget -O - https://dynfi.com/connection-agent/download/opnsense/dfconag-latest-installer.sh | sh  
 ```
 
 ![DynFi Connexion Agent on OPNsense](https://dynfi.com/img/DynFi_Manager/OPNsense_DynFi_connection_agent.png "Install DynFi Connexion Agent on OPNsense")  
